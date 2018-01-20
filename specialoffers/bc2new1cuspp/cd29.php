@@ -26,14 +26,14 @@
 
       $img = 'https://www.healthplus50.com/images/addtoorder.gif';
 
-      $products_id = ['13', '15', '17'];
+      $products_id = ['114', '116', '118'];
       include '/home/healthplus50/public_html/order/bc2new1cuspp/paypal/paypal_configuration.php';
       $link_to_products = ( SANDBOX == TRUE ) ? SANDBOX_PRODUCT_FILE : LIFE_PRODUCT_FILE;
       include '/home/healthplus50/public_html/order/bc2new1cuspp/paypal/' . $link_to_products;
       $link_to_purchase = '/order/bc2new1cuspp/paypal/purchase.php';
       foreach ($products_id as $key) {
           $prod[$key] = [
-                  'decline_link' => $product[$key]['cancel'],
+                  'decline_link' => $products[$key]['cancel'],
                   'buy_link' => $products[$key]['return'],
                   'product_id' => $products[$key]['id']
           ];
