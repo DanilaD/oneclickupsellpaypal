@@ -214,10 +214,11 @@ class paypal {
               'L_NUMBER0' => $params['id'],
               'L_QTY0' => '1',
               'L_AMT0' => $params['ProductPrice'],
-              'AMT' => $params['ProductPrice'],
+                
+              'AMT' => $params['ProductPrice'] + $params['tax'],
               'CURRENCYCODE' => $params['CurrencyCode'],
-              //'ITEMAMT' => $params['ProductPrice'] - $params['tax'],
-              //'TAXAMT' => $params['tax'],
+              'ITEMAMT' => $params['ProductPrice'],
+              'TAXAMT' => $params['tax'],
               //'CUSTOM' => '',item_number
       ];
       
@@ -424,6 +425,23 @@ private function checkPaymentStatus($nvp) {
   
 }
 
+// get information from first product 
+private function getInformationFromFirstPurchase() {
+  
+  $json = filter_input(INPUT_COOKIE, 'first_product');
+  
+  if ( empty($json) ) {
+     /* 
+       * show error page | save log | send e-mail
+       * the message below can be changed
+       */
+        $this->errorpage('empty data about product');
+  }
+
+  return json_decode($json);
+   
+}
+
 // make first purchase
 public function MakeFirstPurchase() {
   
@@ -442,34 +460,21 @@ public function MakeFirstPurchase() {
     setcookie('baid', $baid, time()+86400, '/');       
 
     // get information about first product
-    $json = filter_input(INPUT_COOKIE, 'first_product');
+    $params = getInformationFromFirstPurchase();
     
-    if ( !empty($json) ) {
+    // prepare data for transferring
+    $data = $this->prepareDataforFirstPurchase($params, $get_param['token'], $get_param['payerid'], $baid, 'DoExpressCheckoutPayment');
 
-        $params = json_decode($json);
+    // make purchase
+    $this->Purchase($data);
 
-        // prepare data for transferring
-        $data = $this->prepareDataforFirstPurchase($params, $get_param['token'], $get_param['payerid'], $baid, 'DoExpressCheckoutPayment');
+    // get information about product
+    $product = $this->getProductInformation($params->item_number); 
 
-        // make purchase
-        $this->Purchase($data);
+    // redirect to next product
+    header('location:' . $product['return']);
+    exit;
 
-        // get information about product
-        $product = $this->getProductInformation($params->item_number); 
-        
-        // redirect to next product
-        header('location:' . $product['return']);
-        exit;
-
-    } else {
-
-      /* 
-       * show error page | save log | send e-mail
-       * the message below can be changed
-       */
-        $this->errorpage('empty data about product');
-
-    }
                 
 }
 
@@ -537,8 +542,14 @@ public function GetVariablesFromSession() {
       $variable = $this->GetVariablesFromSession();
       
       // get data of product
-      $params = $this->getProductInformation($product_id);    
+      $params = $this->getProductInformation($product_id);  
+      
+      // get information about first product
+      $params_first_purchase = getInformationFromFirstPurchase();
 
+      // add TAX to params from first purchase
+      $params['tax'] = $params_first_purchase->tax;
+      
       // prepare data for transferring
       $data = $this->prepareDataforOtherPurchase($params, $variable['token'], $variable['payerid'], $variable['baid'], 'DoReferenceTransaction');
       

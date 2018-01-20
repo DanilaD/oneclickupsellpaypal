@@ -24,7 +24,7 @@
  * 
  */
 
-DEFINE('SANDBOX', true); 
+DEFINE('SANDBOX', false); 
 
 /* 
  * INFORMATION FOR AUTORITHASION WINDOW IN PAYPAL
@@ -50,9 +50,9 @@ DEFINE('SANDBOX_PAYPAL_REDIRECT_TO_PAYPAL', 'https://sandbox.paypal.com/cgi-bin/
 // LIFE
 DEFINE('LIFE_PAYPAL_CLIENTID', '');
 DEFINE('LIFE_PAYPAL_SECRET', '');
-DEFINE('LIFE_PAYPAL_USER', '');
-DEFINE('LIFE_PAYPAL_PWD', '');
-DEFINE('LIFE_PAYPAL_SIGNATURE', '');
+DEFINE('LIFE_PAYPAL_USER', 'paypal_api1.fisicoinc.com');
+DEFINE('LIFE_PAYPAL_PWD', 'NZLMH7DD4WYW9976');
+DEFINE('LIFE_PAYPAL_SIGNATURE', 'AvJz7RQuCV1zYC95UW.Bdm1sUY3xAwl5FzWWbNaza9-LdKzbnOMdosGB');
 DEFINE('LIFE_PAYPAL_IPN_URL', 'http://www.healthplus50.com/order/bc2new1cuspp/postparser/process_paypal.php');
 DEFINE('LIFE_PAYPAL_URL_API', 'https://api-3t.paypal.com/nvp');
 DEFINE('LIFE_PAYPAL_REDIRECT_TO_PAYPAL', 'https://www.paypal.com/cgi-bin/webscr?%s');
@@ -66,7 +66,7 @@ DEFINE('ERRORPAGE', 'https://www.healthplus50.com/specialoffers/bc2new1cuspp/1cu
 /* 
  * SENDING MAIL WITH ERROR FROM PAYPAL 
  */
-DEFINE('SENDMESSAGE', 'nonickch@gmail.com,errorlogs@cruisecontroldiet.com');
+DEFINE('SENDMESSAGE', 'danila@autosport.by'); //nonickch@gmail.com,errorlogs@cruisecontroldiet.com
 
 /*
  * FIRST PURCHASE

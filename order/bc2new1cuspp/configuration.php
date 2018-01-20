@@ -16,10 +16,10 @@
 
 //DEBUGGING OPTIONS
 define('CCD_CONF_DEBUG', false);    //Set to true when testing. WARNING: enabling this may break the user experience and/or IPN with debugging messages
-define('CCD_CONF_SANDBOX', true);    //Whether to use the normal paypal/IFS accounts or their respective sandbox (each defined separately below)
+define('CCD_CONF_SANDBOX', false);    //Whether to use the normal paypal/IFS accounts or their respective sandbox (each defined separately below)
 
 //PRODUCT PRICE FIELDS
-define('CCD_POSTPARSER_IFS_PRODUCT_ID', '25');    //The Infusionsoft product id being sold
+define('CCD_POSTPARSER_IFS_PRODUCT_ID', '4');    //The Infusionsoft product id being sold
 define('CCD_POSTPARSER_IFS_PRODUCT_NAME', 'The Cruise Control Diet Core Program (X1)');    //The Infusionsoft product name being sold.
 define('CCD_POSTPARSER_IFS_PRODUCT_NAME_UI', 'The Cruise Control Diet Core Program (X1): Physical Package + Instant Digital Access  / 60-Day 100% Money-Back Guarantee.');    //The product name displayed on the LP.
 define('CCD_POSTPARSER_IFS_PRICE_USD','39.99');       //The product price
@@ -27,7 +27,7 @@ define('CCD_POSTPARSER_SHIPPING_COST_US_CANADA_USD', 9.99);    //The shipping co
 define('CCD_POSTPARSER_SHIPPING_COST_OUTSIDE_US_USD', 14.99);    //The shipping cost (in USD) to outside US/Canada
 define('CCD_POSTPARSER_TAX_PERCENTAGE', 6.25);         //The sales tax IN PERCENTAGE! 6.25 == 6.25% tax
 define('CCD_POSTPARSER_TAX_STATE_SHORTCODE','MA');    //When the country==US and state==MA, then we apply the state tax
-define('CCD_POSTPARSER_MERCHANT_ID',7); // LIFE = 6 , FOR SANDBOX = 7   //The IFS Merchant id to use for billing
+define('CCD_POSTPARSER_MERCHANT_ID',6); // LIFE = 6 , FOR SANDBOX = 7   //The IFS Merchant id to use for billing
 define('CCD_POSTPARSER_PAYMENT_SUCCESS_TAG',255);    //The tag to attach to contacts when a payment has gone through
 define('CCD_POSTPARSER_PAYMENT_FAILURE_TAG',360);    //The tag to attach to contacts when a payment has failed to go through
 
