@@ -37,6 +37,9 @@
                   'buy_link' => $products[$key]['return'],
                   'product_id' => $products[$key]['id']
           ];
+					
+					$decline_link = $products[$key]['cancel'];
+					
       }
     
     }

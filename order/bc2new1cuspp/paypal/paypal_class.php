@@ -20,6 +20,9 @@ class paypal {
      */
     ( SANDBOX != TRUE ) ? $this->life_url() : $this->sandbox_url();
     
+    // rate tax
+    $this->rate_tax = 6.25;
+    
   }
   
   /* setup URLs for life PayPAl
@@ -72,7 +75,7 @@ class paypal {
        * show error page | save log | send e-mail
        * the message below can be changed
        */
-      $this->errorpage("don't much product " . $product_id .", must check product.php");
+      $this->errorpage("don't much product " . $product_id .", must check" . $this->product_file . " | ");
       
     }
     
@@ -139,6 +142,8 @@ class paypal {
               'L_PAYMENTREQUEST_0_QTY0' => '1',                 
       ];
       
+      //$this->SendMessageByMail($post);
+      
       return $post;
   }
   
@@ -184,6 +189,8 @@ class paypal {
             'PAYMENTREQUEST_0_CUSTOM' => $json->os0,
       ];
     
+      //$this->SendMessageByMail($post);
+      
       return $data;
     
   }
@@ -193,6 +200,8 @@ class paypal {
    *  more information https://developer.paypal.com/docs/classic/api/merchant/SetExpressCheckout_API_Operation_NVP/
    */
   private function prepareDataforOtherPurchase($params, $token, $insert_payer_id, $baid, $method) {
+    
+      $tax = $this->getTaxProduct($params['ProductPrice']);
 
       $data = [
               'USER' => $this->user,
@@ -215,10 +224,10 @@ class paypal {
               'L_QTY0' => '1',
               'L_AMT0' => $params['ProductPrice'],
                 
-              'AMT' => $params['ProductPrice'] + $params['tax'],
+              'AMT' => $params['ProductPrice'] + $tax,
               'CURRENCYCODE' => $params['CurrencyCode'],
               'ITEMAMT' => $params['ProductPrice'],
-              'TAXAMT' => $params['tax'],
+              'TAXAMT' => $tax,
               //'CUSTOM' => '',item_number
       ];
       
@@ -241,15 +250,16 @@ class paypal {
       curl_setopt ($ch, CURLOPT_TIMEOUT, 10); // 10 seconds to complete
       $response = curl_exec($ch);
       curl_close($ch);
+      
+      //$this->SendMessageByMail($response);
+      
       return $response; 
   }
-  
 
   /* process a response from paypal
    *  use NVP API PayPal
    *  more information https://developer.paypal.com/docs/classic/api/merchant/SetExpressCheckout_API_Operation_NVP/
    */
-  
   private function convertFromUrlToArray($response) {
     
     if (preg_match_all('/(?<name>[^\=]+)\=(?<value>[^&]+)&?/', $response, $matches)) {
@@ -332,6 +342,9 @@ class paypal {
 
     // send request to PayPal
     $response = $this->sendCurl($data);
+    
+    
+    //$this->SendMessageByMail($response);
     
     // get result
     $nvp = $this->convertFromUrlToArray($response);
@@ -425,6 +438,31 @@ private function checkPaymentStatus($nvp) {
   
 }
 
+// get tax product
+private function getTaxProduct($ProductPrice) {
+  
+    // get tax rate from first purchase
+    $tax_rate = $this->GetTaxRateforPrice();  
+    
+    $tax = round((($ProductPrice * $tax_rate) / 100), 2);
+    
+    return $tax;
+    
+}
+
+// get tax rate
+private function GetTaxRateforPrice() {
+  
+    // get information about first product
+    $params_first_purchase = $this->getInformationFromFirstPurchase();
+
+    // add TAX to params from first purchase
+    $tax = ( $params_first_purchase->tax > 0 ) ? $this->rate_tax : 0;
+    
+    return $tax;
+  
+}
+  
 // get information from first product 
 private function getInformationFromFirstPurchase() {
   
@@ -460,7 +498,7 @@ public function MakeFirstPurchase() {
     setcookie('baid', $baid, time()+86400, '/');       
 
     // get information about first product
-    $params = getInformationFromFirstPurchase();
+    $params = $this->getInformationFromFirstPurchase();
     
     // prepare data for transferring
     $data = $this->prepareDataforFirstPurchase($params, $get_param['token'], $get_param['payerid'], $baid, 'DoExpressCheckoutPayment');
@@ -531,7 +569,7 @@ public function GetVariablesFromSession() {
     return $variable;
   
 }
-  
+
 // make purchase , when user has billing agreement ID
   public function MakeOtherPurchase($product_id) {
     
@@ -541,14 +579,8 @@ public function GetVariablesFromSession() {
       // get information from cookie or session (token, payerid, baid)
       $variable = $this->GetVariablesFromSession();
       
-      // get data of product
-      $params = $this->getProductInformation($product_id);  
-      
       // get information about first product
-      $params_first_purchase = getInformationFromFirstPurchase();
-
-      // add TAX to params from first purchase
-      $params['tax'] = $params_first_purchase->tax;
+      $params = $this->getProductInformation($product_id);
       
       // prepare data for transferring
       $data = $this->prepareDataforOtherPurchase($params, $variable['token'], $variable['payerid'], $variable['baid'], 'DoReferenceTransaction');
@@ -608,7 +640,14 @@ public function GetVariablesFromSession() {
   // send message with Error to administrators 
   private function SendMessageByMail($response) {
     
+      if ( empty($response) ) {
+        
+          $response = ['don\'t have responce to send to email'];
+        
+      }
+        
       $json = json_encode($response);
+        
       // emails configurate in paypal_configuration.php
       mail(SENDMESSAGE, 'Error', $json, ''); 
     
